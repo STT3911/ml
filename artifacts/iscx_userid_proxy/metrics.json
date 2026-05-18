@@ -1,0 +1,25 @@
+[
+  {
+    "scenario": "direct_to_vpn",
+    "num_samples": 9793,
+    "accuracy": 0.3678137445113857,
+    "macro_f1": 0.35302903999784596,
+    "top3_accuracy": 0.7521699172878586
+  },
+  {
+    "scenario": "mixed",
+    "num_samples": 4688,
+    "accuracy": 0.7265358361774744,
+    "macro_f1": 0.6708781481984549,
+    "top3_accuracy": 0.9829351535836177
+  },
+  {
+    "scenario": "open_set",
+    "num_samples": 9793,
+    "accuracy": 0.39539883895936356,
+    "macro_f1": 0.353362203293671,
+    "top3_accuracy": 0.7930552569339927,
+    "roc_auc_unknown": 0.4503061120377503,
+    "eer": 0.5189732098871933
+  }
+]

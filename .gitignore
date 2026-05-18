@@ -1,4 +1,21 @@
-.venv/*
-!.venv/bin/activate
-.artifacts/*
-!.artifacts/manifest.json
+.venv/
+
+# Local/editor state
+.claude/
+__pycache__/
+*.py[cod]
+
+# Raw datasets and generated dataset conversions
+data/
+datasets/
+*.arff
+
+# Keep generated experiment artifacts, plots, metrics, and reports.
+!artifacts/
+!artifacts/**
+
+# Coursework documents are kept out of the repository.
+coursework/
+coursework*
+artifacts/coursework/
+artifacts/coursework/**

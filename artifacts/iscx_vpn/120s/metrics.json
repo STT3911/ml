@@ -1,0 +1,13 @@
+{
+  "dataset": "TimeBasedFeatures-Dataset-120s.arff",
+  "num_rows": 10782,
+  "num_features": 23,
+  "num_train": 8086,
+  "num_test": 2696,
+  "accuracy": 0.8909495548961425,
+  "macro_f1": 0.8904280172854729,
+  "vpn_precision": 0.8778833107191316,
+  "vpn_recall": 0.9190340909090909,
+  "roc_auc": 0.960156139716262,
+  "average_precision": 0.9579544390897976
+}

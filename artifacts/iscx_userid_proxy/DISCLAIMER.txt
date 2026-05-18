@@ -1,0 +1,8 @@
+PROXY EXPERIMENT.
+ISCX-VPN-NonVPN-2016 has no user_id, so this run substitutes the
+application class (BROWSING, VOIP, CHAT, ...) for user identity.
+It tests the SAME hypothesis the user-ID task tests --- whether
+time-based flow features preserve behavioral identity through a
+VPN tunnel --- but the identities are application behaviors, not
+individual users. Do not present these numbers as user-level
+identification accuracy.
