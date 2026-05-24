@@ -5,17 +5,15 @@
 __pycache__/
 *.py[cod]
 
-# Raw datasets and generated dataset conversions
 data/
 datasets/
 *.arff
 
-# Keep generated experiment artifacts, plots, metrics, and reports.
 !artifacts/
 !artifacts/**
 
-# Coursework documents are kept out of the repository.
-coursework/
-coursework*
-artifacts/coursework/
-artifacts/coursework/**
+artifacts/
+artifacts/
+/node_modules/*
+package-lock.json
+package.json
