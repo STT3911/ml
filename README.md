@@ -1,158 +1,133 @@
-# Behavioral Session Identification
+# Идентификация пользователя по сетевым сессиям
 
-This project implements the practical part of the coursework:
+Проект выполнен в рамках курсовой работы по теме:
 
-"Identification and verification of a user using VPN/Proxy based on behavioral biometrics and temporal network sessions."
+**«Идентификация и верификация пользователя при использовании VPN/Proxy на основе поведенческой биометрии и временных сетевых сессий».**
 
-## What is implemented
+## Описание
 
-- flow-level sessionization with inactivity thresholds
-- session-level feature extraction
-- hybrid model:
-  - user classifier
-  - per-user anomaly detector
-- evaluation scenarios:
-  - `direct -> vpn`
-  - `mixed`
-  - `open-set`
-- synthetic data generator for demo runs without a real dataset
+В работе рассматривается задача распознавания пользователя по характеристикам его сетевой активности. Основной акцент сделан на временных и статистических признаках потоков, которые объединяются в сессии по порогу неактивности.
 
-## Expected input CSV
+Реализованный пайплайн включает:
 
-The pipeline expects flow records with these columns:
+- разбиение flow-записей на пользовательские сессии;
+- извлечение признаков на уровне сессий;
+- гибридную схему распознавания:
+  - классификатор пользователя;
+  - индивидуальный детектор аномалий для каждого пользователя;
+- несколько сценариев оценки:
+  - `direct -> vpn`;
+  - `mixed`;
+  - `open-set`;
+- генератор синтетических данных для проверки работы без реального датасета.
 
-- `user_id`
-- `mode`
-- `start_time`
-- `end_time`
-- `duration`
-- `bytes_up`
-- `bytes_down`
-- `pkts_up`
-- `pkts_down`
+## Формат входных данных
 
-Optional columns improve the model:
+На вход подается CSV-файл с flow-записями. Обязательные столбцы:
 
-- `flow_iat_mean`, `flow_iat_std`, `flow_iat_min`, `flow_iat_max`
-- `fwd_iat_mean`, `fwd_iat_std`, `fwd_iat_min`, `fwd_iat_max`
-- `bwd_iat_mean`, `bwd_iat_std`, `bwd_iat_min`, `bwd_iat_max`
-- `active_mean`, `active_std`, `active_min`, `active_max`
-- `idle_mean`, `idle_std`, `idle_min`, `idle_max`
-- `bytes_per_sec`
-- `pkts_per_sec`
+- `user_id`;
+- `mode`;
+- `start_time`;
+- `end_time`;
+- `duration`;
+- `bytes_up`;
+- `bytes_down`;
+- `pkts_up`;
+- `pkts_down`.
 
-## Install
+Дополнительные признаки, если они есть в датасете:
+
+- `flow_iat_mean`, `flow_iat_std`, `flow_iat_min`, `flow_iat_max`;
+- `fwd_iat_mean`, `fwd_iat_std`, `fwd_iat_min`, `fwd_iat_max`;
+- `bwd_iat_mean`, `bwd_iat_std`, `bwd_iat_min`, `bwd_iat_max`;
+- `active_mean`, `active_std`, `active_min`, `active_max`;
+- `idle_mean`, `idle_std`, `idle_min`, `idle_max`;
+- `bytes_per_sec`;
+- `pkts_per_sec`.
+
+## Установка
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-If you want the exact classifier from the coursework baseline, also install:
+Для запуска baseline-модели с CatBoost дополнительно можно установить:
 
 ```powershell
 python -m pip install catboost
 ```
 
-## Run demo on synthetic data
+Если `catboost` не установлен, используется `RandomForestClassifier`.
+
+## Запуск на синтетических данных
 
 ```powershell
 python scripts/run_demo.py --output-dir artifacts/demo
 ```
 
-## Run VPN/non-VPN classification on ISCX ARFF data
+Синтетический набор данных нужен для демонстрации полного цикла обработки: генерации flow-записей, построения сессий, обучения моделей и расчета метрик.
 
-The downloaded ISCX-VPN-NonVPN ARFF files do not contain `user_id` or flow timestamps,
-so they should not be used for user identification directly. For this real dataset,
-run the methodologically correct task: binary VPN/non-VPN detection from time-based
-flow features.
-
-Place the ARFF files in `data/`, then run:
-
-```powershell
-python scripts/run_iscx_vpn.py --data-dir data --output-dir artifacts/iscx_vpn
-```
-
-The script evaluates each combined time window file, for example `15s`, `30s`,
-`60s`, and `120s`.
-
-## Run on your own dataset
+## Запуск на своем датасете
 
 ```powershell
 python scripts/run_demo.py --input-csv data/flows.csv --output-dir artifacts/real_run
 ```
 
-## Outputs
+CSV-файл должен соответствовать формату, описанному выше. По умолчанию сессия считается завершенной, если между соседними flow-записями пользователя прошло больше 60 минут. Также в эксперименте дополнительно проверяется порог 30 минут.
 
-The script writes:
+## VPN/non-VPN классификация на ISCX
 
-- `session_features.csv`
-- `metrics.json`
-- `predictions_<scenario>.csv`
-- plots:
-  - confusion matrix
-  - ROC curve
-  - quality drop summary
+Датасет ISCX VPN-NonVPN в формате ARFF не содержит `user_id` и временных меток отдельных flow-записей, поэтому его нельзя напрямую использовать для задачи идентификации пользователей.
 
-For ISCX VPN/non-VPN runs, the script writes:
+Для этого датасета реализована отдельная корректная постановка: бинарная классификация VPN/non-VPN по временным признакам потоков.
 
-- `metrics_comparison.csv`
-- per-window `metrics_summary.csv`
-- `predictions.csv`
-- `feature_importance.csv`
-- `model.joblib`
-- converted ARFF snapshots
-- confusion matrix, ROC, precision-recall, feature-importance, correlation,
-  class-distribution, probability-distribution, and application-error plots
-
-## Build coursework document
-
-After running the demo and ISCX experiments, build the final coursework files:
+ARFF-файлы нужно поместить в папку `data/`, затем выполнить:
 
 ```powershell
-python scripts/build_coursework.py
+python scripts/run_iscx_vpn.py --data-dir data --output-dir artifacts/iscx_vpn
 ```
 
-Outputs:
+Скрипт отдельно обрабатывает файлы с разными временными окнами, например `15s`, `30s`, `60s` и `120s`.
 
-- `artifacts/coursework/coursework_final.docx`
-- `artifacts/coursework/coursework_final.md`
+## Proxy-эксперимент идентификации на ISCX
 
-## Proxy user-identification experiment on ISCX
+Так как в ISCX нет идентификаторов пользователей, строгий эксперимент по user identification на этом датасете невозможен. В качестве приближенной проверки используется proxy-постановка: классы приложений (`BROWSING`, `VOIP`, `CHAT` и т.д.) рассматриваются как поведенческие идентичности.
 
-ISCX ARFF files have no `user_id`, so a strict user-identification experiment
-is impossible on this dataset. As a methodological proxy, the script below
-treats each application class (BROWSING, VOIP, CHAT, ...) as a "behavioral
-identity". It tests the same hypothesis the user-ID task tests — whether
-time-based flow features preserve behavioral identity through a VPN tunnel —
-but the identities are application behaviors, not individual users. Numbers
-must not be presented as user-level identification accuracy. The script
-writes a `DISCLAIMER.txt` next to the metrics.
+Такой эксперимент проверяет, насколько временные признаки сохраняют различимость поведения при прохождении трафика через VPN. Полученные значения нельзя интерпретировать как точность идентификации реальных пользователей.
+
+Пример запуска:
 
 ```powershell
 python scripts/run_iscx_userid_proxy.py --input-arff data/TimeBasedFeatures-Dataset-15s.arff --output-dir artifacts/iscx_userid_proxy
 ```
 
-Outputs:
+## Проверка сохраненной модели ISCX
 
-- `metrics_summary.csv` and `metrics.json` for the three scenarios
-  (`direct_to_vpn`, `mixed`, `open_set`)
-- per-scenario `predictions_*.csv`
-- confusion matrices and per-application accuracy plot
-- `DISCLAIMER.txt` with the proxy caveat
-
-## Test a saved ISCX model
-
-After training, test the saved model without retraining:
+После обучения можно загрузить сохраненную модель и выполнить предсказание без повторного обучения:
 
 ```powershell
 python scripts/predict_iscx_vpn.py --model artifacts/iscx_vpn/15s/model.joblib --input-arff data/TimeBasedFeatures-Dataset-15s.arff --output-csv artifacts/iscx_vpn/manual_test_predictions.csv
 ```
 
-Use this as a technical load-and-predict check. For unbiased quality numbers,
-use `artifacts/iscx_vpn/metrics_comparison.csv`.
+Этот запуск используется как техническая проверка загрузки модели и получения предсказаний. Для оценки качества модели следует использовать результаты из `artifacts/iscx_vpn/metrics_comparison.csv`.
 
-## Notes
+## Результаты
 
-- The default session threshold is 60 minutes.
-- The script also evaluates a 30-minute split as a comparison point.
-- If `catboost` is not installed, the pipeline falls back to `RandomForestClassifier`.
+Для основного сценария формируются:
+
+- `session_features.csv`;
+- `metrics.json`;
+- `predictions_<scenario>.csv`;
+- матрица ошибок;
+- ROC-кривая;
+- график изменения качества по сценариям.
+
+Для ISCX VPN/non-VPN экспериментов формируются:
+
+- `metrics_comparison.csv`;
+- `metrics_summary.csv` для каждого временного окна;
+- `predictions.csv`;
+- `feature_importance.csv`;
+- `model.joblib`;
+- преобразованные CSV-снимки ARFF-файлов;
+- графики матрицы ошибок, ROC, precision-recall, важности признаков, корреляции, распределения классов, распределения вероятностей и ошибок по приложениям.
