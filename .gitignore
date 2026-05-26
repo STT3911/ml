@@ -3,14 +3,4 @@
 __pycache__/
 *.py[cod]
 
-data/
-datasets/
-*.arff
-
-!artifacts/
-!artifacts/**
-
 artifacts/
-/node_modules/*
-package-lock.json
-package.json

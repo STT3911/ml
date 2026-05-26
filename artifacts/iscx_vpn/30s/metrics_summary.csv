@@ -1,2 +1,0 @@
-dataset,num_rows,num_features,num_train,num_test,accuracy,macro_f1,vpn_precision,vpn_recall,roc_auc,average_precision
-TimeBasedFeatures-Dataset-30s.arff,14651,23,10988,3663,0.9036309036309036,0.9030965816158101,0.8950524737631185,0.9260599793174767,0.9702618450509378,0.9714515438664003
