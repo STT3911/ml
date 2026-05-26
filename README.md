@@ -39,46 +39,43 @@ artifacts/
 
 1. Клонируйте репозиторий:
 
-```powershell
+```bash
 git clone https://github.com/username/repo.git
 cd repo
 ```
 
-2. Установите зависимости:
+2. Запустите скрипт установки — он установит зависимости и обучит все модели:
 
-```powershell
+**Windows:**
+```
+setup.bat
+```
+
+**Linux / Mac:**
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+Скрипт выполняет три шага автоматически:
+- устанавливает зависимости из `requirements.txt`;
+- пробует установить CatBoost (если не выйдет — используется RandomForest);
+- обучает все модели и сохраняет артефакты в `artifacts/`.
+
+Если нужно обучить вручную или с реальным датасетом:
+
+```bash
+# вручную
 pip install -r requirements.txt
-```
-
-Для CatBoost (опционально, даёт более точный классификатор):
-
-```powershell
-pip install catboost
-```
-
-Если `catboost` не установлен, автоматически используется `RandomForestClassifier`.
-
-3. Обучите все модели:
-
-```powershell
 python scripts/train_all.py
-```
 
-Или двойным кликом по `start.bat` (Windows).
-
-Скрипт обучает сразу всё:
-- модель идентификации пользователя (на синтетических данных);
-- VPN/non-VPN классификаторы для всех окон (15s, 30s, 60s, 120s) — если в `data/` есть ARFF-файлы.
-
-С реальным CSV пользователей:
-
-```powershell
+# с реальным CSV пользователей
 python scripts/train_all.py --input-csv data/flows.csv
 ```
 
 ## Запуск на своём датасете
 
-```powershell
+```bash
 python scripts/run_demo.py --input-csv data/flows.csv --output-dir artifacts/real_run
 ```
 
@@ -101,7 +98,7 @@ python scripts/run_demo.py --input-csv data/flows.csv --output-dir artifacts/rea
 
 ARFF-файлы помещаются в `data/`, затем:
 
-```powershell
+```bash
 python scripts/run_iscx_vpn.py --data-dir data --output-dir artifacts/iscx_vpn
 ```
 
@@ -111,7 +108,7 @@ python scripts/run_iscx_vpn.py --data-dir data --output-dir artifacts/iscx_vpn
 
 Классы приложений (`BROWSING`, `VOIP`, `CHAT` и т.д.) используются как proxy-идентичности:
 
-```powershell
+```bash
 python scripts/run_iscx_userid_proxy.py --input-arff data/TimeBasedFeatures-Dataset-15s.arff --output-dir artifacts/iscx_userid_proxy
 ```
 
@@ -119,7 +116,7 @@ python scripts/run_iscx_userid_proxy.py --input-arff data/TimeBasedFeatures-Data
 
 ## Проверка сохранённой модели ISCX
 
-```powershell
+```bash
 python scripts/predict_iscx_vpn.py --model artifacts/iscx_vpn/15s/model.joblib --input-arff data/TimeBasedFeatures-Dataset-15s.arff --output-csv artifacts/iscx_vpn/manual_test_predictions.csv
 ```
 
