@@ -1,6 +1,4 @@
 .venv/
-
-# Local/editor state
 .claude/
 __pycache__/
 *.py[cod]
@@ -12,7 +10,6 @@ datasets/
 !artifacts/
 !artifacts/**
 
-artifacts/
 artifacts/
 /node_modules/*
 package-lock.json
